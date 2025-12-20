@@ -12,14 +12,12 @@ from controllers.visualize_controller import (
     visualize_search_performance,
     visualize_hash_asl
 )
-
 from controllers.hp_controller import (
     analyze_min_word_book,
     analyze_top_words_of_book
 )
 
 import os
-import matplotlib.pyplot as plt
 
 
 def choose_text_file_cli():
@@ -97,9 +95,8 @@ def main():
                 print(f"  出现次数：{res['count']}")
                 print(f"  比较次数：{res['comparisons']}")
 
-            # ⭐ 新增：当前单词的哈希查找性能细节
+            # 当前单词哈希细节
             print("\n====== 当前单词的哈希查找细节 ======")
-
             hc = result["hash_chain"]["detail"]
             print(
                 f"[拉链法] 哈希地址={hc['hash_index']} "
@@ -116,23 +113,28 @@ def main():
                 f"成功={hl['success']}"
             )
 
+            # 整体性能
             show_perf = input("\n是否查看【哈希表整体性能】？(y/n)：").strip().lower()
             if show_perf == "y":
                 perf = hash_performance_analysis(
                     current_nodes, hash_chain, hash_linear
                 )
-                print("\n====== 哈希表整体性能（与具体单词无关） ======")
+                print("\n====== 哈希表整体性能 ======")
                 for k, v in perf.items():
                     print(
-                        f"[{k}] "
-                        f"装载因子={v['alpha']:.5f} "
-                        f"冲突={v['conflicts']} "
-                        f"ASL={v['asl']:.3f}"
+                        f"[{k}] 装载因子={v['alpha']:.4f} "
+                        f"冲突={v['conflicts']} ASL={v['asl']:.3f}"
                     )
+
+                # ⭐ ASL 可视化选择
+                show_asl = input("是否【可视化 ASL 对比】？(y/n)：").strip().lower()
+                if show_asl == "y":
+                    visualize_hash_asl(perf, show=True)
+
+            # 当前单词查找性能图
             show = input("是否可视化【当前单词查找性能】？(y/n)：").strip().lower()
             if show == "y":
                 visualize_search_performance(result, show=True)
-
 
         # ---------- 3 ----------
         elif choice == "3":
@@ -145,9 +147,9 @@ def main():
                 print(f"{name}: {info['time']:.2f}ms, 比较次数={info['comparisons']}")
 
             print("\n可选排序规则：")
-            print("1. freq（词频）")
-            print("2. freq_alpha（词频 + 字母）")
-            print("3. freq_length（词频 + 单词长度）")
+            print("1. freq")
+            print("2. freq_alpha")
+            print("3. freq_length")
 
             rule_map = {"1": "freq", "2": "freq_alpha", "3": "freq_length"}
             r = input("请选择排序规则：").strip()
@@ -168,17 +170,12 @@ def main():
                 top_n=n,
                 export=True,
                 draw=True,
-                show=True      # ⭐ 关键：明确要求显示
+                show=True
             )
 
             print(f"\n====== Top {n} 高频词 ======")
             for i, node in enumerate(top_nodes, start=1):
                 print(f"{i:02d}. {node.word} -> {node.count}")
-            perf = hash_performance_analysis(
-                current_nodes, hash_chain, hash_linear
-            )
-            visualize_hash_asl(perf, show=True)
-
 
         # ---------- 5 ----------
         elif choice == "5":
@@ -193,7 +190,6 @@ def main():
                     print(f"{i}. {name} -> {cnt}")
                 idx, name, cnt = result["min_book"]
                 print(f"\n最少的一部：{name}（{cnt}）")
-                print(f"结果已导出：{result['export_path']}")
 
             elif sub == "2":
                 for idx, name in harry_books.items():
@@ -212,7 +208,6 @@ def main():
                 print(f"\n======《{result['book']}》Top {n} ======")
                 for i, (w, c) in enumerate(result["top_words"], start=1):
                     print(f"{i:02d}. {w} -> {c}")
-                print(f"结果已导出：{result['export_path']}")
 
         elif choice == "0":
             print("系统已退出。")

@@ -1,3 +1,4 @@
+# gui/search_page.py
 import tkinter as tk
 from tkinter import messagebox
 
@@ -6,20 +7,28 @@ from controllers.search_controller import (
     hash_performance_analysis
 )
 
+from controllers.visualize_controller import (
+    visualize_search_performance,
+    visualize_hash_asl
+)
+
 
 class SearchPage(tk.Frame):
     def __init__(self, parent, context):
         super().__init__(parent)
         self.context = context
+        self.last_search_result = None  # ⭐ 记录最近一次查找结果
         self._build_ui()
 
     def _build_ui(self):
+        # ===== 标题 =====
         tk.Label(
             self,
             text="单词查找方法对比",
             font=("微软雅黑", 16, "bold")
         ).pack(pady=15)
 
+        # ===== 输入区 =====
         input_frame = tk.Frame(self)
         input_frame.pack(pady=10)
 
@@ -33,15 +42,36 @@ class SearchPage(tk.Frame):
             command=self.do_search
         ).pack(side="left")
 
+        # ===== 文本结果区（完全保留） =====
         self.result_text = tk.Text(self, width=90, height=18)
         self.result_text.pack(pady=10)
 
+        # ===== 原有按钮：文字版整体性能 =====
         tk.Button(
             self,
-            text="查看哈希表性能分析",
+            text="查看哈希表性能分析（文字）",
             command=self.show_hash_performance
-        ).pack(pady=10)
+        ).pack(pady=5)
 
+        # ===== ⭐ 新增：图形化按钮区 =====
+        vis_frame = tk.Frame(self)
+        vis_frame.pack(pady=10)
+
+        tk.Button(
+            vis_frame,
+            text="📊 可视化当前单词查找性能",
+            command=self.show_search_visual
+        ).pack(side="left", padx=15)
+
+        tk.Button(
+            vis_frame,
+            text="📊 可视化哈希表 ASL 对比",
+            command=self.show_asl_visual
+        ).pack(side="left", padx=15)
+
+    # ==================================================
+    # 查找逻辑（完全保留原行为）
+    # ==================================================
     def do_search(self):
         word = self.word_entry.get().strip().lower()
         if not word:
@@ -56,6 +86,10 @@ class SearchPage(tk.Frame):
             ctx["hash_linear"]
         )
 
+        # ⭐ 保存结果，供按钮使用
+        self.last_search_result = result
+
+        # ===== 原有文本输出 =====
         self.result_text.delete("1.0", tk.END)
         self.result_text.insert(tk.END, f"查询单词：{word}\n")
         self.result_text.insert(tk.END, "-" * 60 + "\n")
@@ -75,20 +109,57 @@ class SearchPage(tk.Frame):
                 tk.END,
                 f"  比较次数：{info['comparisons']}\n\n"
             )
+
         self.result_text.insert(tk.END, "\n【哈希查找细节】\n")
 
         hc = result["hash_chain"]["detail"]
         self.result_text.insert(
             tk.END,
-            f"拉链法：哈希地址={hc['hash_index']}，链长={hc['chain_length']}，比较={hc['comparisons']}\n"
+            f"拉链法：哈希地址={hc['hash_index']}，"
+            f"链长={hc['chain_length']}，"
+            f"比较={hc['comparisons']}\n"
         )
 
         hl = result["hash_linear"]["detail"]
         self.result_text.insert(
             tk.END,
-            f"线性探测：初始地址={hl['hash_index']}，命中地址={hl['hit_index']}，探测步数={hl['probe_steps']}\n"
+            f"线性探测：初始地址={hl['hash_index']}，"
+            f"命中地址={hl['hit_index']}，"
+            f"探测步数={hl['probe_steps']}\n"
         )
 
+    # ==================================================
+    # ⭐ 新增：当前单词查找性能 → 弹窗图
+    # ==================================================
+    def show_search_visual(self):
+        if not self.last_search_result:
+            messagebox.showwarning("提示", "请先进行一次单词查找")
+            return
+
+        visualize_search_performance(
+            self.last_search_result,
+            show=True   # ⭐ 强制弹出 matplotlib 窗口
+        )
+
+    # ==================================================
+    # ⭐ 新增：哈希表 ASL 对比 → 弹窗图
+    # ==================================================
+    def show_asl_visual(self):
+        ctx = self.context
+        perf = hash_performance_analysis(
+            ctx["current_nodes"],
+            ctx["hash_chain"],
+            ctx["hash_linear"]
+        )
+
+        visualize_hash_asl(
+            perf,
+            show=True   # ⭐ 强制弹出 matplotlib 窗口
+        )
+
+    # ==================================================
+    # 原有：文字版整体性能（不改）
+    # ==================================================
     def show_hash_performance(self):
         ctx = self.context
         perf = hash_performance_analysis(
