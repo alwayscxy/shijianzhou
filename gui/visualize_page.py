@@ -1,6 +1,6 @@
 # gui/visualize_page.py
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
@@ -35,47 +35,73 @@ class VisualizePage(tk.Frame):
 
         # 左：图像区
         self.fig_frame = tk.Frame(content)
-        self.fig_frame.pack(side="left", fill="both", expand=True, padx=10)
+        self.fig_frame.pack(
+            side="left", fill="both", expand=True, padx=10, pady=5
+        )
 
         # 右：文本区
         self.text = tk.Text(content, width=35)
-        self.text.pack(side="right", fill="y", padx=10)
+        self.text.pack(side="right", fill="y", padx=10, pady=5)
 
     def visualize(self):
+        # ---------- 参数检查 ----------
         try:
             n = int(self.n_var.get())
         except ValueError:
             messagebox.showerror("错误", "Top-N 必须是整数")
             return
 
-        # 调 controller（不 draw，不 export）
+        if n <= 0:
+            messagebox.showerror("错误", "Top-N 必须大于 0")
+            return
+
+        # ---------- 调用 controller（不画图、不导出） ----------
         top_nodes = visualize_top_words(
-            self.nodes, top_n=n, export=False, draw=False
+            self.nodes,
+            top_n=n,
+            export=False,
+            draw=False
         )
 
-        # ===== 更新右侧文本 =====
+        # ---------- 更新右侧文本 ----------
         self.text.delete("1.0", tk.END)
         self.text.insert(tk.END, f"Top {n} 高频词\n\n")
+
         for i, node in enumerate(top_nodes, start=1):
             self.text.insert(
                 tk.END, f"{i:02d}. {node.word} -> {node.count}\n"
             )
 
-        # ===== 更新左侧图像 =====
+        # ---------- 更新左侧图像 ----------
         for w in self.fig_frame.winfo_children():
             w.destroy()
 
-        fig = Figure(figsize=(6, 4))
+        fig = Figure(figsize=(6.5, 4.5))
         ax = fig.add_subplot(111)
 
-        words = [n.word for n in top_nodes]
-        counts = [n.count for n in top_nodes]
+        words = [node.word for node in top_nodes]
+        counts = [node.count for node in top_nodes]
 
-        ax.bar(words, counts)
-        ax.set_title(f"Top {n} 高频词统计")
+        bars = ax.bar(words, counts)
+
+        # 标题与坐标轴
+        ax.set_title(f"Top {n} 高频词统计", fontsize=12)
         ax.set_xlabel("单词")
         ax.set_ylabel("出现次数")
+
         ax.tick_params(axis="x", rotation=45)
+
+        # ---------- 柱顶显示数值 ----------
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                height,
+                f"{int(height)}",
+                ha="center",
+                va="bottom",
+                fontsize=9
+            )
 
         fig.tight_layout()
 

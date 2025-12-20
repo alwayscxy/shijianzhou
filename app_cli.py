@@ -1,4 +1,5 @@
 # app_cli.py
+
 from controllers.init_controller import init_system
 from controllers.stats_controller import show_basic_statistics
 from controllers.search_controller import (
@@ -6,7 +7,12 @@ from controllers.search_controller import (
     hash_performance_analysis
 )
 from controllers.sort_controller import compare_sort_algorithms, sort_by_rule
-from controllers.visualize_controller import visualize_top_words
+from controllers.visualize_controller import (
+    visualize_top_words,
+    visualize_search_performance,
+    visualize_hash_asl
+)
+
 from controllers.hp_controller import (
     analyze_min_word_book,
     analyze_top_words_of_book
@@ -123,6 +129,10 @@ def main():
                         f"冲突={v['conflicts']} "
                         f"ASL={v['asl']:.3f}"
                     )
+            show = input("是否可视化【当前单词查找性能】？(y/n)：").strip().lower()
+            if show == "y":
+                visualize_search_performance(result, show=True)
+
 
         # ---------- 3 ----------
         elif choice == "3":
@@ -164,6 +174,11 @@ def main():
             print(f"\n====== Top {n} 高频词 ======")
             for i, node in enumerate(top_nodes, start=1):
                 print(f"{i:02d}. {node.word} -> {node.count}")
+            perf = hash_performance_analysis(
+                current_nodes, hash_chain, hash_linear
+            )
+            visualize_hash_asl(perf, show=True)
+
 
         # ---------- 5 ----------
         elif choice == "5":
