@@ -1,0 +1,84 @@
+# gui/visualize_page.py
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+
+from controllers.visualize_controller import visualize_top_words
+
+
+class VisualizePage(tk.Frame):
+    def __init__(self, master, context):
+        super().__init__(master)
+        self.context = context
+        self.nodes = context["current_nodes"]
+
+        self._build_ui()
+
+    def _build_ui(self):
+        # ===== 顶部控制区 =====
+        ctrl = tk.Frame(self)
+        ctrl.pack(fill="x", padx=10, pady=5)
+
+        tk.Label(ctrl, text="Top-N：").pack(side="left")
+        self.n_var = tk.StringVar(value="10")
+        tk.Entry(ctrl, textvariable=self.n_var, width=6).pack(side="left")
+
+        tk.Button(
+            ctrl, text="生成可视化", command=self.visualize
+        ).pack(side="left", padx=10)
+
+        # ===== 主内容区 =====
+        content = tk.Frame(self)
+        content.pack(fill="both", expand=True)
+
+        # 左：图像区
+        self.fig_frame = tk.Frame(content)
+        self.fig_frame.pack(side="left", fill="both", expand=True, padx=10)
+
+        # 右：文本区
+        self.text = tk.Text(content, width=35)
+        self.text.pack(side="right", fill="y", padx=10)
+
+    def visualize(self):
+        try:
+            n = int(self.n_var.get())
+        except ValueError:
+            messagebox.showerror("错误", "Top-N 必须是整数")
+            return
+
+        # 调 controller（不 draw，不 export）
+        top_nodes = visualize_top_words(
+            self.nodes, top_n=n, export=False, draw=False
+        )
+
+        # ===== 更新右侧文本 =====
+        self.text.delete("1.0", tk.END)
+        self.text.insert(tk.END, f"Top {n} 高频词\n\n")
+        for i, node in enumerate(top_nodes, start=1):
+            self.text.insert(
+                tk.END, f"{i:02d}. {node.word} -> {node.count}\n"
+            )
+
+        # ===== 更新左侧图像 =====
+        for w in self.fig_frame.winfo_children():
+            w.destroy()
+
+        fig = Figure(figsize=(6, 4))
+        ax = fig.add_subplot(111)
+
+        words = [n.word for n in top_nodes]
+        counts = [n.count for n in top_nodes]
+
+        ax.bar(words, counts)
+        ax.set_title(f"Top {n} 高频词统计")
+        ax.set_xlabel("单词")
+        ax.set_ylabel("出现次数")
+        ax.tick_params(axis="x", rotation=45)
+
+        fig.tight_layout()
+
+        canvas = FigureCanvasTkAgg(fig, master=self.fig_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill="both", expand=True)

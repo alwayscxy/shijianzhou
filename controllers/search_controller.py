@@ -1,3 +1,5 @@
+# controllers/search_controller.py
+
 from searcher import (
     search_in_array,
     search_in_hash_chaining,
@@ -6,68 +8,70 @@ from searcher import (
 
 
 def search_word(word, array_nodes, hash_chain, hash_linear):
-    print("\n====== 单词查找结果 ======")
-    print(f"查询目标：{word}\n")
+    """
+    单词查找（CLI / GUI 共用）
+    """
 
-    # 数组查找
-    res_array, cmp_array = search_in_array(array_nodes, word)
-    if res_array:
-        print(f"【数组查找】")
-        print(f"次数={res_array.count}, 首次位置={res_array.first_pos}, 比较次数={cmp_array}")
-    else:
-        print(f"【数组查找】未找到, 比较次数={cmp_array}")
+    result = {}
 
-    # 拉链哈希
-    res_chain, cmp_chain = search_in_hash_chaining(hash_chain, word)
-    if res_chain:
-        print(f"\n【拉链哈希】")
-        print(f"次数={res_chain.count}, 首次位置={res_chain.first_pos}, 比较次数={cmp_chain}")
-    else:
-        print(f"\n【拉链哈希】未找到, 比较次数={cmp_chain}")
+    # ---------- 数组 ----------
+    arr = search_in_array(array_nodes, word)
+    result["array"] = {
+        "found": arr["success"],
+        "count": arr["node"].count if arr["node"] else 0,
+        "first_pos": arr["node"].first_pos if arr["node"] else None,
+        "comparisons": arr["comparisons"],
+        "detail": arr,
+    }
 
-    # 线性探测哈希
-    res_linear, cmp_linear = search_in_hash_linear(hash_linear, word)
-    if res_linear:
-        print(f"\n【线性探测哈希】")
-        print(f"次数={res_linear.count}, 首次位置={res_linear.first_pos}, 比较次数={cmp_linear}")
-    else:
-        print(f"\n【线性探测哈希】未找到, 比较次数={cmp_linear}")
+    # ---------- 拉链哈希 ----------
+    ch = search_in_hash_chaining(hash_chain, word)
+    result["hash_chain"] = {
+        "found": ch["success"],
+        "count": ch["node"].count if ch["node"] else 0,
+        "first_pos": ch["node"].first_pos if ch["node"] else None,
+        "comparisons": ch["comparisons"],
+        "detail": ch,
+    }
 
-    print("\n====== 查找结束 ======\n")
+    # ---------- 线性探测哈希 ----------
+    ln = search_in_hash_linear(hash_linear, word)
+    result["hash_linear"] = {
+        "found": ln["success"],
+        "count": ln["node"].count if ln["node"] else 0,
+        "first_pos": ln["node"].first_pos if ln["node"] else None,
+        "comparisons": ln["comparisons"],
+        "detail": ln,
+    }
+
+    return result
 
 
 def hash_performance_analysis(nodes, hash_chain, hash_linear):
     """
-    哈希表性能分析：ASL、装载因子、冲突次数
+    哈希表整体性能分析（ASL / 装载因子 / 冲突）
     """
-    print("\n====== 哈希表性能分析 ======")
 
     total_cmp_chain = 0
     total_cmp_linear = 0
     total_searches = len(nodes)
 
     for node in nodes:
-        _, cmp_chain = search_in_hash_chaining(hash_chain, node.word)
-        _, cmp_linear = search_in_hash_linear(hash_linear, node.word)
-        total_cmp_chain += cmp_chain
-        total_cmp_linear += cmp_linear
+        ch = search_in_hash_chaining(hash_chain, node.word)
+        ln = search_in_hash_linear(hash_linear, node.word)
 
-    asl_chain = total_cmp_chain / total_searches
-    asl_linear = total_cmp_linear / total_searches
+        total_cmp_chain += ch["comparisons"]
+        total_cmp_linear += ln["comparisons"]
 
-    alpha_chain = total_searches / hash_chain.size
-    alpha_linear = total_searches / hash_linear.size
-
-    print("\n【拉链法哈希表】")
-    print(f"容量：{hash_chain.size}")
-    print(f"装载因子 α：{alpha_chain:.2f}")
-    print(f"冲突次数：{hash_chain.conflicts}")
-    print(f"平均查找长度 ASL：{asl_chain:.2f}")
-
-    print("\n【线性探测哈希表】")
-    print(f"容量：{hash_linear.size}")
-    print(f"装载因子 α：{alpha_linear:.2f}")
-    print(f"冲突次数：{hash_linear.conflicts}")
-    print(f"平均查找长度 ASL：{asl_linear:.2f}")
-
-    print("\n====== 哈希分析结束 ======\n")
+    return {
+        "chain": {
+            "alpha": total_searches / hash_chain.size,
+            "conflicts": hash_chain.conflicts,
+            "asl": total_cmp_chain / total_searches,
+        },
+        "linear": {
+            "alpha": total_searches / hash_linear.size,
+            "conflicts": hash_linear.conflicts,
+            "asl": total_cmp_linear / total_searches,
+        },
+    }
