@@ -1,8 +1,7 @@
-# gui/visualize_page.py
 import tkinter as tk
 from tkinter import messagebox
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg  # 把matplotlib图嵌入Tkinter
 from matplotlib.figure import Figure
 
 from controllers.visualize_controller import visualize_top_words
@@ -13,13 +12,12 @@ class VisualizePage(tk.Frame):
         super().__init__(master)
         self.context = context
         self.nodes = context["current_nodes"]
-
         self._build_ui()
 
     def _build_ui(self):
-        # ===== 顶部控制区 =====
+        # 顶部控制区
         ctrl = tk.Frame(self)
-        ctrl.pack(fill="x", padx=10, pady=5)
+        ctrl.pack(fill="x", padx=10, pady=5)  # 水平方向拉满，左右留空，上下留空
 
         tk.Label(ctrl, text="Top-N：").pack(side="left")
         self.n_var = tk.StringVar(value="10")
@@ -29,9 +27,9 @@ class VisualizePage(tk.Frame):
             ctrl, text="生成可视化", command=self.visualize
         ).pack(side="left", padx=10)
 
-        # ===== 主内容区 =====
+        # 主内容区
         content = tk.Frame(self)
-        content.pack(fill="both", expand=True)
+        content.pack(fill="both", expand=True)  # 拉满并扩展
 
         # 左：图像区
         self.fig_frame = tk.Frame(content)
@@ -44,7 +42,6 @@ class VisualizePage(tk.Frame):
         self.text.pack(side="right", fill="y", padx=10, pady=5)
 
     def visualize(self):
-        # ---------- 参数检查 ----------
         try:
             n = int(self.n_var.get())
         except ValueError:
@@ -55,7 +52,7 @@ class VisualizePage(tk.Frame):
             messagebox.showerror("错误", "Top-N 必须大于 0")
             return
 
-        # ---------- 调用 controller（不画图、不导出） ----------
+        # 调用 controller
         top_nodes = visualize_top_words(
             self.nodes,
             top_n=n,
@@ -63,21 +60,21 @@ class VisualizePage(tk.Frame):
             draw=False
         )
 
-        # ---------- 更新右侧文本 ----------
+        # 更新右侧文本
         self.text.delete("1.0", tk.END)
         self.text.insert(tk.END, f"Top {n} 高频词\n\n")
 
         for i, node in enumerate(top_nodes, start=1):
             self.text.insert(
-                tk.END, f"{i:02d}. {node.word} -> {node.count}\n"
+                tk.END, f"{i:02d}. {node.word} ： {node.count}次\n"
             )
 
-        # ---------- 更新左侧图像 ----------
+        # 更新左侧图像
         for w in self.fig_frame.winfo_children():
             w.destroy()
 
         fig = Figure(figsize=(6.5, 4.5))
-        ax = fig.add_subplot(111)
+        ax = fig.add_subplot(111)  # 创建子图，1行1列第1个
 
         words = [node.word for node in top_nodes]
         counts = [node.count for node in top_nodes]
@@ -89,9 +86,9 @@ class VisualizePage(tk.Frame):
         ax.set_xlabel("单词")
         ax.set_ylabel("出现次数")
 
-        ax.tick_params(axis="x", rotation=45)
+        ax.tick_params(axis="x", rotation=45)  # X轴标签旋转45度
 
-        # ---------- 柱顶显示数值 ----------
+        # 柱顶显示数值
         for bar in bars:
             height = bar.get_height()
             ax.text(
@@ -103,8 +100,8 @@ class VisualizePage(tk.Frame):
                 fontsize=9
             )
 
-        fig.tight_layout()
+        fig.tight_layout()  # 自动调整布局
 
-        canvas = FigureCanvasTkAgg(fig, master=self.fig_frame)
+        canvas = FigureCanvasTkAgg(fig, master=self.fig_frame)  # 将图嵌入Tkinter
         canvas.draw()
-        canvas.get_tk_widget().pack(fill="both", expand=True)
+        canvas.get_tk_widget().pack(fill="both", expand=True)  # 把图放入框架中，并填充

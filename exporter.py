@@ -23,7 +23,7 @@ def get_next_export_path():
 def get_next_hp_export_path(prefix, ext="txt"):  # 自动生成文件名(hp)
     idx = 1
     while True:
-        path = f"output/{prefix}_{idx:03d}.{ext}"
+        path = f"output/{prefix}_{idx:03d}.{ext}"  # 0填充，3位，d：整数
         if not os.path.exists(path):
             return path
         idx += 1

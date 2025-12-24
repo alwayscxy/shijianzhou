@@ -1,16 +1,11 @@
-# controllers/init_controller.py
-
-from loader import load_text
-from splitter import split_text
-from array_counter import count_words_array
-from hash_chaining import HashTableChaining
-from hash_linear import HashTableLinear
-
+from loader import load_text  # 读取文本
+from splitter import split_text  # 分词
+from array_counter import count_words_array  # 数组词频统计
+from hash_chaining import HashTableChaining  # 拉链法哈希表实现词频统计等
+from hash_linear import HashTableLinear  # 线性探测哈希表实现词频统计等
 
 def choose_tokenizer():
-    """
-    命令行下使用的分词方式选择（CLI 专用）
-    """
+    # CLI分词方式选择
     print("\n请选择分词方式：")
     print("1. 仅英文分词")
     print("2. 仅中文分词（规则）")
@@ -36,13 +31,6 @@ def choose_tokenizer():
 
 
 def init_system(file_path, mode=None, zh_method=None):
-    """
-    系统初始化入口（CLI / GUI 通用）
-
-    - CLI：不传 mode → 自动调用 choose_tokenizer()
-    - GUI：直接传 mode / zh_method
-    """
-
     # 读取文本
     text = load_text(file_path)
 

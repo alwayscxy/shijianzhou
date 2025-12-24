@@ -1,5 +1,5 @@
 def main():
-    print("====== 文本分析系统 ======")
+    print("文本分析系统")
     print("请选择展示方式：")
     print("1. 命令行界面（CLI）")
     print("2. 图形界面（GUI）")

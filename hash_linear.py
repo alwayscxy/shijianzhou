@@ -1,9 +1,8 @@
 # 使用线性探测法解决冲突
 from node import WordNode
 
-
 class HashTableLinear:
-    def __init__(self, size=2000000):
+    def __init__(self, size=1000000):
         self.size = size
         self.table = [None] * size
         self.conflicts = 0

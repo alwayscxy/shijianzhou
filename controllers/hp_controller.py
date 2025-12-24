@@ -9,19 +9,11 @@ from exporter import (
     get_next_hp_export_path
 )
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, "data")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 根目录，abspath绝对路径，dirname获取父目录
+DATA_DIR = os.path.join(BASE_DIR, "data")  # 数据目录
 
 
 def analyze_min_word_book(harry_books):
-    """
-    返回：
-    {
-        "details": [(idx, filename, count), ...],
-        "min_book": (idx, filename, count),
-        "export_path": "xxx.txt"
-    }
-    """
     results = []
     min_item = None
 
@@ -54,14 +46,7 @@ def analyze_min_word_book(harry_books):
 
 
 def analyze_top_words_of_book(harry_books, book_index, top_n=10):
-    """
-    返回：
-    {
-        "book": filename,
-        "top_words": [(word, count), ...],
-        "export_path": "xxx.txt"
-    }
-    """
+
     filename = harry_books[book_index]
     path = os.path.join(DATA_DIR, filename)
 
@@ -69,7 +54,7 @@ def analyze_top_words_of_book(harry_books, book_index, top_n=10):
     words = split_text(text, mode="english", zh_method="rule")
     nodes = count_words_array(words)
 
-    sorted_nodes, _ = sorter.quick_sort_dutch_flag(nodes)
+    sorted_nodes, _ = sorter.quick_sort_dutch_flag(nodes) # 比较次数用不到
     top_nodes = sorted_nodes[:top_n]
 
     export_path = get_next_hp_export_path(

@@ -1,4 +1,3 @@
-# gui/search_page.py
 import tkinter as tk
 from tkinter import messagebox
 
@@ -17,24 +16,24 @@ class SearchPage(tk.Frame):
     def __init__(self, parent, context):
         super().__init__(parent)
         self.context = context
-        self.last_search_result = None  # ⭐ 记录最近一次查找结果
+        self.last_search_result = None  # 记录最近一次查找结果，后续可视化使用
         self._build_ui()
 
     def _build_ui(self):
-        # ===== 标题 =====
+        # 标题
         tk.Label(
             self,
             text="单词查找方法对比",
             font=("微软雅黑", 16, "bold")
         ).pack(pady=15)
 
-        # ===== 输入区 =====
+        # 输入区
         input_frame = tk.Frame(self)
         input_frame.pack(pady=10)
 
         tk.Label(input_frame, text="查询单词：").pack(side="left")
-        self.word_entry = tk.Entry(input_frame, width=30)
-        self.word_entry.pack(side="left", padx=10)
+        self.word_entry = tk.Entry(input_frame, width=30)  # 输入框宽度，30字符
+        self.word_entry.pack(side="left", padx=10)  # 左右间距10
 
         tk.Button(
             input_frame,
@@ -42,36 +41,34 @@ class SearchPage(tk.Frame):
             command=self.do_search
         ).pack(side="left")
 
-        # ===== 文本结果区（完全保留） =====
+        # 文本结果区
         self.result_text = tk.Text(self, width=90, height=18)
-        self.result_text.pack(pady=10)
+        self.result_text.pack(pady=10)  # 上下间间距10
 
-        # ===== 原有按钮：文字版整体性能 =====
+        # 文字版整体性能
         tk.Button(
             self,
             text="查看哈希表性能分析（文字）",
             command=self.show_hash_performance
         ).pack(pady=5)
 
-        # ===== ⭐ 新增：图形化按钮区 =====
+        # 图形化按钮区
         vis_frame = tk.Frame(self)
         vis_frame.pack(pady=10)
 
         tk.Button(
             vis_frame,
-            text="📊 可视化当前单词查找性能",
+            text="可视化当前单词查找性能",
             command=self.show_search_visual
-        ).pack(side="left", padx=15)
+        ).pack(side="left", padx=15)  # 左右间距15
 
         tk.Button(
             vis_frame,
-            text="📊 可视化哈希表 ASL 对比",
+            text="可视化哈希表 ASL 对比",
             command=self.show_asl_visual
         ).pack(side="left", padx=15)
 
-    # ==================================================
-    # 查找逻辑（完全保留原行为）
-    # ==================================================
+    # 查找逻辑
     def do_search(self):
         word = self.word_entry.get().strip().lower()
         if not word:
@@ -86,11 +83,11 @@ class SearchPage(tk.Frame):
             ctx["hash_linear"]
         )
 
-        # ⭐ 保存结果，供按钮使用
+        # 保存结果，供按钮使用
         self.last_search_result = result
 
-        # ===== 原有文本输出 =====
-        self.result_text.delete("1.0", tk.END)
+        # 文本输出
+        self.result_text.delete("1.0", tk.END)  # 清空
         self.result_text.insert(tk.END, f"查询单词：{word}\n")
         self.result_text.insert(tk.END, "-" * 60 + "\n")
 
@@ -110,7 +107,7 @@ class SearchPage(tk.Frame):
                 f"  比较次数：{info['comparisons']}\n\n"
             )
 
-        self.result_text.insert(tk.END, "\n【哈希查找细节】\n")
+        self.result_text.insert(tk.END, "\n哈希查找细节：\n")
 
         hc = result["hash_chain"]["detail"]
         self.result_text.insert(
@@ -128,9 +125,7 @@ class SearchPage(tk.Frame):
             f"探测步数={hl['probe_steps']}\n"
         )
 
-    # ==================================================
-    # ⭐ 新增：当前单词查找性能 → 弹窗图
-    # ==================================================
+    # 当前单词查找性能 → 弹窗图
     def show_search_visual(self):
         if not self.last_search_result:
             messagebox.showwarning("提示", "请先进行一次单词查找")
@@ -138,12 +133,11 @@ class SearchPage(tk.Frame):
 
         visualize_search_performance(
             self.last_search_result,
-            show=True   # ⭐ 强制弹出 matplotlib 窗口
+            show=True  # ⭐ 强制弹出 matplotlib 窗口
         )
 
-    # ==================================================
-    # ⭐ 新增：哈希表 ASL 对比 → 弹窗图
-    # ==================================================
+    # 新增：哈希表 ASL 对比 → 弹窗图
+
     def show_asl_visual(self):
         ctx = self.context
         perf = hash_performance_analysis(
@@ -154,12 +148,10 @@ class SearchPage(tk.Frame):
 
         visualize_hash_asl(
             perf,
-            show=True   # ⭐ 强制弹出 matplotlib 窗口
+            show=True  # ⭐ 强制弹出 matplotlib 窗口
         )
 
-    # ==================================================
-    # 原有：文字版整体性能（不改）
-    # ==================================================
+    # 文字版整体性能
     def show_hash_performance(self):
         ctx = self.context
         perf = hash_performance_analysis(

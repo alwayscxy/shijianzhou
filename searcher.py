@@ -1,6 +1,3 @@
-# searcher.py
-# ================= 单词查询（底层） =================
-
 def search_in_array(nodes, target):
     comparisons = 0
     for idx, node in enumerate(nodes):
@@ -32,9 +29,9 @@ def search_in_hash_chaining(hash_table, target):
                 "node": node,
                 "success": True,
                 "comparisons": comparisons,
-                "hash_index": index,
+                "hash_index": index, # 哈希地址
                 "chain_length": len(chain),
-                "chain_pos": pos
+                "chain_pos": pos # 链中位置
             }
 
     return {

@@ -21,10 +21,10 @@ class SortPage(tk.Frame):
 
         tk.Label(ctrl, text="Top-N：").pack(side="left")
         self.n_entry = tk.Entry(ctrl, width=6)
-        self.n_entry.insert(0, "20")
+        self.n_entry.insert(0, "20")  # 默认值20
         self.n_entry.pack(side="left", padx=5)
 
-        self.rule_var = tk.StringVar(value="freq")
+        self.rule_var = tk.StringVar(value="freq")  # 字符串盒子，用于保存选项，默认为词频
         tk.OptionMenu(
             ctrl,
             self.rule_var,
@@ -49,15 +49,15 @@ class SortPage(tk.Frame):
 
         report = compare_sort_algorithms(self.context["current_nodes"], n)
 
-        self.output.insert(tk.END, "【算法性能对比】\n")
+        self.output.insert(tk.END, "算法性能对比：\n")
         for name, info in report.items():
             self.output.insert(
                 tk.END,
                 f"{name}: {info['time']:.2f} ms，比较次数={info['comparisons']}\n"
             )
 
-        self.output.insert(tk.END, "\n【排序结果】\n")
+        self.output.insert(tk.END, "\n排序结果：\n")
 
         final = sort_by_rule(self.context["current_nodes"], self.rule_var.get())
         for i, node in enumerate(final[:n], 1):
-            self.output.insert(tk.END, f"{i:02d}. {node.word} → {node.count}\n")
+            self.output.insert(tk.END, f"{i:02d}. {node.word} ：{node.count}次\n")

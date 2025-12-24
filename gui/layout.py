@@ -8,23 +8,21 @@ from gui.hp_page import HarryPotterPage
 
 
 class MainLayout(tk.Frame):
-    """
-    主界面布局 + 页面切换控制
-    """
+
+    # 主界面布局 + 页面切换控制
 
     def __init__(self, root, context):
-        super().__init__(root)
+        super().__init__(root)  # 主窗口
         self.root = root
         self.context = context
-        self.pages = {}
+        self.pages = {}  # 存放各个页面实例
 
         self._build_layout()
         self._create_pages()
         self.show_page("stats")
 
-    # =========================
     # 页面整体布局
-    # =========================
+
     def _build_layout(self):
         self.pack(fill="both", expand=True)
 
@@ -38,9 +36,8 @@ class MainLayout(tk.Frame):
 
         self._build_menu()
 
-    # =========================
     # 左侧菜单
-    # =========================
+
     def _build_menu(self):
         tk.Label(
             self.menu_frame,
@@ -65,9 +62,8 @@ class MainLayout(tk.Frame):
                 command=lambda k=key: self.show_page(k)
             ).pack(pady=5)
 
-    # =========================
     # 创建所有页面
-    # =========================
+
     def _create_pages(self):
         self.pages["stats"] = StatsPage(
             self.content_frame, self.context
@@ -87,13 +83,12 @@ class MainLayout(tk.Frame):
 
         for page in self.pages.values():
             page.place(
-                relx=0, rely=0, relwidth=1, relheight=1
+                relx=0, rely=0, relwidth=1, relheight=1  # 填满内容区，所有页面叠在一起
             )
 
-    # =========================
     # 页面切换
-    # =========================
+
     def show_page(self, key):
         page = self.pages.get(key)
         if page:
-            page.tkraise()
+            page.tkraise()  # 将该页面置于顶层显示

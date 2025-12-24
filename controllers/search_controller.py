@@ -1,5 +1,3 @@
-# controllers/search_controller.py
-
 from searcher import (
     search_in_array,
     search_in_hash_chaining,
@@ -8,13 +6,9 @@ from searcher import (
 
 
 def search_word(word, array_nodes, hash_chain, hash_linear):
-    """
-    单词查找（CLI / GUI 共用）
-    """
-
     result = {}
 
-    # ---------- 数组 ----------
+    # 数组
     arr = search_in_array(array_nodes, word)
     result["array"] = {
         "found": arr["success"],
@@ -24,7 +18,7 @@ def search_word(word, array_nodes, hash_chain, hash_linear):
         "detail": arr,
     }
 
-    # ---------- 拉链哈希 ----------
+    # 拉链哈希
     ch = search_in_hash_chaining(hash_chain, word)
     result["hash_chain"] = {
         "found": ch["success"],
@@ -34,7 +28,7 @@ def search_word(word, array_nodes, hash_chain, hash_linear):
         "detail": ch,
     }
 
-    # ---------- 线性探测哈希 ----------
+    # 线性探测哈希
     ln = search_in_hash_linear(hash_linear, word)
     result["hash_linear"] = {
         "found": ln["success"],
@@ -48,13 +42,10 @@ def search_word(word, array_nodes, hash_chain, hash_linear):
 
 
 def hash_performance_analysis(nodes, hash_chain, hash_linear):
-    """
-    哈希表整体性能分析（ASL / 装载因子 / 冲突）
-    """
-
-    total_cmp_chain = 0
-    total_cmp_linear = 0
-    total_searches = len(nodes)
+    # 哈希表整体性能分析（ASL / 装载因子 / 冲突）
+    total_cmp_chain = 0  # 哈希表拉链法总比较次数
+    total_cmp_linear = 0  # 哈希表线性探测总比较次数
+    total_searches = len(nodes)  # 总搜索次数
 
     for node in nodes:
         ch = search_in_hash_chaining(hash_chain, node.word)
@@ -65,9 +56,9 @@ def hash_performance_analysis(nodes, hash_chain, hash_linear):
 
     return {
         "chain": {
-            "alpha": total_searches / hash_chain.size,
-            "conflicts": hash_chain.conflicts,
-            "asl": total_cmp_chain / total_searches,
+            "alpha": total_searches / hash_chain.size,  # 装载因子=表中元素数/表大小
+            "conflicts": hash_chain.conflicts,  # 冲突次数
+            "asl": total_cmp_chain / total_searches,  # 平均查找长度ASL=总比较次数/总搜索次数
         },
         "linear": {
             "alpha": total_searches / hash_linear.size,

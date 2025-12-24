@@ -1,12 +1,10 @@
-# app_cli.py
-
 from controllers.init_controller import init_system
-from controllers.stats_controller import show_basic_statistics
+from controllers.stats_controller import show_basic_statistics  # 基本统计信息
 from controllers.search_controller import (
-    search_word,
+    search_word,  # 查找单词
     hash_performance_analysis
-)
-from controllers.sort_controller import compare_sort_algorithms, sort_by_rule
+)  # 哈希表性能分析
+from controllers.sort_controller import compare_sort_algorithms, sort_by_rule  # 排序算法对比与根据规则排序
 from controllers.visualize_controller import (
     visualize_top_words,
     visualize_search_performance,
@@ -33,18 +31,18 @@ def choose_text_file_cli():
         print(f"{idx}. {name}")
 
     choice = input("请选择文件编号：").strip()
-    if not choice.isdigit():
+    if not choice.isdigit():  # 检查输入是否为数字
         return None
 
     idx = int(choice)
     if idx < 1 or idx > len(files):
         return None
 
-    return os.path.join(data_dir, files[idx - 1])
+    return os.path.join(data_dir, files[idx - 1])  # 下标从1开始，列表从0开始
 
 
 def main():
-    print("======= 文本词频统计系统（CLI） =======")
+    print("文本词频统计系统（CLI）")
 
     filepath = choose_text_file_cli()
     if not filepath:
@@ -69,7 +67,7 @@ def main():
     }
 
     while True:
-        print("\n====== 主功能菜单 ======")
+        print("\n主功能：")
         print("1. 基本统计信息")
         print("2. 查找方法对比")
         print("3. 排序方法对比与排序")
@@ -79,16 +77,14 @@ def main():
 
         choice = input("请选择功能：").strip()
 
-        # ---------- 1 ----------
         if choice == "1":
             show_basic_statistics(context)
 
-        # ---------- 2 ----------
         elif choice == "2":
             word = input("请输入要查询的单词：").strip().lower()
             result = search_word(word, array_nodes, hash_chain, hash_linear)
 
-            print("\n====== 查找结果（当前单词） ======")
+            print("\n查找结果（当前单词）：")
             for name, res in result.items():
                 print(f"[{name}]")
                 print(f"  是否找到：{res['found']}")
@@ -96,7 +92,7 @@ def main():
                 print(f"  比较次数：{res['comparisons']}")
 
             # 当前单词哈希细节
-            print("\n====== 当前单词的哈希查找细节 ======")
+            print("\n当前单词的哈希查找细节：")
             hc = result["hash_chain"]["detail"]
             print(
                 f"[拉链法] 哈希地址={hc['hash_index']} "
@@ -114,35 +110,34 @@ def main():
             )
 
             # 整体性能
-            show_perf = input("\n是否查看【哈希表整体性能】？(y/n)：").strip().lower()
+            show_perf = input("\n是否查看“哈希表整体性能”？(y/n)：").strip().lower()
             if show_perf == "y":
                 perf = hash_performance_analysis(
                     current_nodes, hash_chain, hash_linear
                 )
-                print("\n====== 哈希表整体性能 ======")
+                print("\n哈希表整体性能：")
                 for k, v in perf.items():
                     print(
                         f"[{k}] 装载因子={v['alpha']:.4f} "
                         f"冲突={v['conflicts']} ASL={v['asl']:.3f}"
                     )
 
-                # ⭐ ASL 可视化选择
-                show_asl = input("是否【可视化 ASL 对比】？(y/n)：").strip().lower()
+                # ASL可视化选择
+                show_asl = input("是否可视化ASL对比？(y/n)：").strip().lower()
                 if show_asl == "y":
                     visualize_hash_asl(perf, show=True)
 
             # 当前单词查找性能图
-            show = input("是否可视化【当前单词查找性能】？(y/n)：").strip().lower()
+            show = input("是否可视化当前单词查找性能？(y/n)：").strip().lower()
             if show == "y":
                 visualize_search_performance(result, show=True)
 
-        # ---------- 3 ----------
         elif choice == "3":
             n = input("请输入 Top-N（默认 10）：").strip()
             n = int(n) if n.isdigit() else 10
 
             report = compare_sort_algorithms(current_nodes, top_n=n)
-            print("\n====== 排序算法性能对比 ======")
+            print("\n排序算法性能对比：")
             for name, info in report.items():
                 print(f"{name}: {info['time']:.2f}ms, 比较次数={info['comparisons']}")
 
@@ -156,11 +151,10 @@ def main():
 
             if r in rule_map:
                 sorted_nodes = sort_by_rule(current_nodes, rule_map[r])
-                print(f"\n====== Top {n} 排序结果 ======")
+                print(f"\nTop {n} 排序结果")
                 for i, node in enumerate(sorted_nodes[:n], start=1):
                     print(f"{i:02d}. {node.word} -> {node.count}")
 
-        # ---------- 4 ----------
         elif choice == "4":
             n = input("请输入 Top-N（默认 10）：").strip()
             n = int(n) if n.isdigit() else 10
@@ -173,11 +167,10 @@ def main():
                 show=True
             )
 
-            print(f"\n====== Top {n} 高频词 ======")
+            print(f"\nTop {n} 高频词")
             for i, node in enumerate(top_nodes, start=1):
                 print(f"{i:02d}. {node.word} -> {node.count}")
 
-        # ---------- 5 ----------
         elif choice == "5":
             print("\n1. 统计单词量最少的一部")
             print("2. 查看某一部的高频词")
@@ -185,7 +178,7 @@ def main():
 
             if sub == "1":
                 result = analyze_min_word_book(harry_books)
-                print("\n====== 各书词数 ======")
+                print("\n哈利波特每本书的词数")
                 for i, name, cnt in result["details"]:
                     print(f"{i}. {name} -> {cnt}")
                 idx, name, cnt = result["min_book"]
@@ -205,7 +198,7 @@ def main():
                 result = analyze_top_words_of_book(
                     harry_books, int(book_idx), n
                 )
-                print(f"\n======《{result['book']}》Top {n} ======")
+                print(f"\n《{result['book']}》Top {n}：")
                 for i, (w, c) in enumerate(result["top_words"], start=1):
                     print(f"{i:02d}. {w} -> {c}")
 

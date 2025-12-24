@@ -1,5 +1,5 @@
-import time
-import copy
+import time  # 用于测量运行时间
+import copy  # 复制
 import sorter
 
 

@@ -1,7 +1,7 @@
 def bubble_sort(nodes):
     arr = nodes[:]
     n = len(arr)
-    cmp = 0
+    cmp = 0  # 比较次数
 
     for i in range(n):
         for j in range(0, n - i - 1):
@@ -29,13 +29,10 @@ def insertion_sort(nodes):
 
 
 def quick_sort(nodes):
-    """
-    安全版快排：三路划分，防止递归爆栈
-    """
     if len(nodes) <= 1:
         return nodes[:], 0
 
-    pivot = nodes[len(nodes) // 2].count
+    pivot = nodes[len(nodes) // 2].count # 选择中间元素作为基准
     left = []
     mid = []
     right = []
@@ -56,8 +53,5 @@ def quick_sort(nodes):
     return sorted_left + mid + sorted_right, cmp + cmp_l + cmp_r
 
 
-def quick_sort_dutch_flag(nodes):
-    """
-    与 quick_sort 行为一致，保留接口
-    """
+def quick_sort_dutch_flag(nodes):  # 与 quick_sort 行为一致，保留接口，之前普通的快速排序递归爆栈了，所以直接用三色旗版本
     return quick_sort(nodes)

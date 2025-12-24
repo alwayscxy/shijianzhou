@@ -38,7 +38,7 @@ class HarryPotterPage(tk.Frame):
         frame = tk.Frame(self)
         frame.pack()
 
-        tk.Label(frame, text="① 单词量最少的一部", font=("微软雅黑", 12, "bold")).pack(anchor="w")
+        tk.Label(frame, text="① 单词量最少的一部", font=("微软雅黑", 12, "bold")).pack(anchor="w")  # 左对齐
 
         tk.Button(
             frame,
@@ -64,7 +64,7 @@ class HarryPotterPage(tk.Frame):
             idx, name, cnt = result["min_book"]
             self.min_text.insert(
                 tk.END,
-                f"\n【结论】单词量最少的是：第 {idx} 部\n{name}\n共 {cnt} 个单词\n"
+                f"\n结论：单词量最少的是：第 {idx} 部\n{name}\n共 {cnt} 个单词\n"
             )
             self.min_text.insert(
                 tk.END,
@@ -74,7 +74,7 @@ class HarryPotterPage(tk.Frame):
         except Exception as e:
             messagebox.showerror("分析失败", str(e))
 
-    # ========= 功能二 =========
+    # 功能二
     def _build_top_section(self):
         frame = tk.Frame(self)
         frame.pack()

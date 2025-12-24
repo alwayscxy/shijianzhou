@@ -1,7 +1,6 @@
 # 基于数组的词频统计
 from node import WordNode
 
-
 def count_words_array(words):
     table = []
     for index, word in enumerate(words):  # 遍历所有单词

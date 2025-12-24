@@ -1,10 +1,9 @@
 # 使用拉链法解决冲突的哈希表实现
-
 from node import WordNode
 
 
 class HashTableChaining:
-    def __init__(self, size=2000000):  # 初始化哈希表
+    def __init__(self, size=1000000):  # 初始化哈希表
         self.size = size
         self.table = [[] for _ in range(size)]
         self.conflicts = 0  # 冲突次数
@@ -17,7 +16,7 @@ class HashTableChaining:
         index = self._hash(word)
         chain = self.table[index]
 
-        if len(chain) > 0:  # 如果桶中已有元素，说明发生冲突
+        if len(chain) > 0:  # 如果已有元素，说明发生冲突
             self.conflicts += 1
         for node in chain:
             if node.word == word:
