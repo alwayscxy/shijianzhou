@@ -3,7 +3,8 @@ from searcher import (
     search_in_hash_chaining,
     search_in_hash_linear,
 )
-
+from stopwords import STOP_WORDS
+from collections import defaultdict
 
 def search_word(word, array_nodes, hash_chain, hash_linear):
     result = {}
@@ -65,4 +66,45 @@ def hash_performance_analysis(nodes, hash_chain, hash_linear):
             "conflicts": hash_linear.conflicts,
             "asl": total_cmp_linear / total_searches,
         },
+    }
+
+
+
+def analyze_word_context(word, words, window_size=100, top_n=20):
+    """
+    词语上下文关联分析
+    :param word: 查询词
+    :param words: 原始分词列表（有顺序）
+    :param window_size: 左右窗口大小
+    :param top_n: 输出前 N 个高频上下文词
+    """
+
+    positions = [i for i, w in enumerate(words) if w == word]
+
+    context_freq = defaultdict(int)
+
+    for pos in positions:
+        left = max(0, pos - window_size)
+        right = min(len(words), pos + window_size + 1)
+
+        for i in range(left, right):
+            if i == pos:
+                continue
+            w = words[i]
+            if w in STOP_WORDS or len(w) <= 2:
+                continue
+            context_freq[w] += 1
+
+    sorted_context = sorted(
+        context_freq.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    return {
+        "word": word,
+        "total_occurrences": len(positions),
+        "window_size": window_size,
+        "context_words": sorted_context[:top_n],
+        "removed_stopwords": sorted(STOP_WORDS)
     }

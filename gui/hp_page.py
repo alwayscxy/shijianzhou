@@ -111,7 +111,14 @@ class HarryPotterPage(tk.Frame):
 
             self.top_text.insert(
                 tk.END,
-                f"{result['book']} Top {n} 高频词：\n\n"
+                f"{result['book']} 高频词分析（已过滤停用词）\n\n"
+            )
+
+            self.top_text.insert(
+                tk.END,
+                f"总词数：{result['total_words']}\n"
+                f"不同词数：{result['unique_words']}\n"
+                f"不同词占比：{result['ratio']:.2%}\n\n"
             )
 
             for i, (word, count) in enumerate(result["top_words"], 1):

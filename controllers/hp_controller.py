@@ -1,4 +1,5 @@
 import os
+from stopwords import STOP_WORDS
 from loader import load_text
 from splitter import split_text
 from array_counter import count_words_array
@@ -46,24 +47,49 @@ def analyze_min_word_book(harry_books):
 
 
 def analyze_top_words_of_book(harry_books, book_index, top_n=10):
-
     filename = harry_books[book_index]
     path = os.path.join(DATA_DIR, filename)
 
     text = load_text(path)
     words = split_text(text, mode="english", zh_method="rule")
-    nodes = count_words_array(words)
+    total_cnt = len(words)
 
-    sorted_nodes, _ = sorter.quick_sort_dutch_flag(nodes) # 比较次数用不到
+    # 不同词（未过滤，用于词汇丰富度）
+    all_nodes = count_words_array(words)
+    unique_cnt = len(all_nodes)
+    ratio = unique_cnt / total_cnt if total_cnt > 0 else 0
+
+    # ⭐ 高频词统计用过滤后的
+    filtered_words = [
+        w for w in words
+        if w not in STOP_WORDS and len(w) > 2
+    ]
+
+    nodes = count_words_array(filtered_words)
+
+    sorted_nodes, _ = sorter.quick_sort_dutch_flag(nodes)
     top_nodes = sorted_nodes[:top_n]
 
     export_path = get_next_hp_export_path(
-        f"hp_top_words_book{book_index}_top{top_n}"
+        f"hp_top_words_book{book_index}_top{top_n}_filtered"
     )
-    export_hp_top_words(filename, sorted_nodes, top_n, export_path)
+
+    export_hp_top_words(
+        filename,
+        sorted_nodes,
+        top_n,
+        export_path,
+        removed_words=sorted(STOP_WORDS)
+    )
 
     return {
         "book": filename,
         "top_words": [(n.word, n.count) for n in top_nodes],
-        "export_path": export_path
+        "export_path": export_path,
+        "removed": sorted(STOP_WORDS),
+
+        # ⭐ 新增
+        "total_words": total_cnt,
+        "unique_words": unique_cnt,
+        "ratio": ratio
     }

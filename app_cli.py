@@ -1,14 +1,18 @@
 from controllers.init_controller import init_system
 from controllers.stats_controller import show_basic_statistics  # 基本统计信息
 from controllers.search_controller import (
-    search_word,  # 查找单词
-    hash_performance_analysis
-)  # 哈希表性能分析
-from controllers.sort_controller import compare_sort_algorithms, sort_by_rule  # 排序算法对比与根据规则排序
+    search_word,
+    hash_performance_analysis,
+    analyze_word_context
+)
+
+from controllers.sort_controller import compare_sort_algorithms, sort_by_rule, analyze_sort_performance_by_scale  # 排序算法对比与根据规则排序
 from controllers.visualize_controller import (
     visualize_top_words,
     visualize_search_performance,
-    visualize_hash_asl
+    visualize_hash_asl,
+    visualize_context_words,
+    visualize_sort_performance_curve
 )
 from controllers.hp_controller import (
     analyze_min_word_book,
@@ -131,6 +135,37 @@ def main():
             show = input("是否可视化当前单词查找性能？(y/n)：").strip().lower()
             if show == "y":
                 visualize_search_performance(result, show=True)
+            # 上下文分析（词语关联性）
+            do_ctx = input("是否进行词语关联性分析（上下文分析）？(y/n)：").strip().lower()
+            if do_ctx == "y":
+                ctx_result = analyze_word_context(
+                    word,
+                    context["words"],  # 原始分词序列
+                    window_size=100,
+                    top_n=20
+                )
+
+                print("\n====== 词语关联性分析结果 ======")
+                print(f"目标词：{word}")
+                print(f"出现次数：{ctx_result['total_occurrences']}")
+                print(f"上下文窗口：±{ctx_result['window_size']} 词")
+                print(
+                    "已过滤停用词（部分）：",
+                    ", ".join(ctx_result["removed_stopwords"][:10])
+                )
+                print("--------------------------------")
+
+                for w, cnt in ctx_result["context_words"]:
+                    print(f"{w:<15} {cnt}")
+                show_ctx = input("是否可视化上下文分析结果？(y/n)：").strip().lower()
+                if show_ctx == "y":
+                    visualize_context_words(
+                        ctx_result["context_words"],
+                        word,
+                        show=True
+                    )
+
+
 
         elif choice == "3":
             n = input("请输入 Top-N（默认 10）：").strip()
@@ -154,6 +189,19 @@ def main():
                 print(f"\nTop {n} 排序结果")
                 for i, node in enumerate(sorted_nodes[:n], start=1):
                     print(f"{i:02d}. {node.word} -> {node.count}")
+            do_curve = input("是否分析排序算法在不同规模下的性能变化？(y/n)：").strip().lower()
+            if do_curve == "y":
+                perf_data = analyze_sort_performance_by_scale(current_nodes)
+
+                metric = input("请选择指标：1. 时间  2. 比较次数：").strip()
+                metric = "comparisons" if metric == "2" else "time"
+
+                visualize_sort_performance_curve(
+                    perf_data,
+                    metric=metric,
+                    show=True
+                )
+
 
         elif choice == "4":
             n = input("请输入 Top-N（默认 10）：").strip()

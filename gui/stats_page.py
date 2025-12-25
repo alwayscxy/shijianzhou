@@ -26,12 +26,15 @@ class StatsPage(tk.Frame):
         # 从 context 取数据
         total_words = len(self.context["words"])
         unique_words = len(self.context["current_nodes"])
+        ratio = unique_words / total_words if total_words > 0 else 0
+
         mode = self.context["mode"]
         zh_method = self.context["zh_method"]
 
         stats = [
             ("总词数", total_words),
             ("不同词数", unique_words),
+            ("不同词占比", f"{ratio:.2%}"),
             ("分词模式", mode),
             ("中文分词方式", zh_method),
         ]

@@ -5,8 +5,11 @@ from visualize import (
     draw_top_words,
     draw_search_performance,
     draw_hash_asl,
-    get_next_image_path
+    get_next_image_path,
+    draw_context_words,
+    draw_sort_performance_curve
 )
+
 
 # def visualize_top_words(nodes, top_n=10, export=True, draw=True, show=False):
 #     sorted_nodes, _ = quick_sort(nodes)
@@ -53,4 +56,26 @@ def visualize_search_performance(result, show=True):
 def visualize_hash_asl(perf, show=True):
     img = get_next_image_path("hash_asl")
     draw_hash_asl(perf, img, show)
+    return img
+
+
+def visualize_context_words(context_words, target_word, show=True):
+    img = get_next_image_path("context_words")
+    draw_context_words(
+        context_words,
+        target_word,
+        save_path=img,
+        show=show
+    )
+    return img
+
+
+def visualize_sort_performance_curve(perf_data, metric="time", show=True):
+    img = get_next_image_path(f"sort_{metric}")
+    draw_sort_performance_curve(
+        perf_data,
+        metric=metric,
+        save_path=img,
+        show=show
+    )
     return img

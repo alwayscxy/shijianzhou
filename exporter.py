@@ -39,10 +39,15 @@ def export_hp_word_count(summary, min_book, min_count, path):  # 导出哈利波
         f.write(f"{min_book} （{min_count} 个单词）\n")
 
 
-def export_hp_top_words(book_name, nodes, top_n, path):  # 导出哈利波特中单词
+def export_hp_top_words(book_name, nodes, top_n, path, removed_words=None):
     with open(path, "w", encoding="utf-8") as f:
         f.write(f"{book_name}\n")
         f.write(f"高频词 Top-{top_n}\n\n")
 
+        if removed_words:
+            f.write("【说明】统计前已去除以下停用词（部分或全部）：\n")
+            f.write(", ".join(removed_words) + "\n\n")
+
         for i, node in enumerate(nodes[:top_n], start=1):
             f.write(f"{i}. {node.word} : {node.count}\n")
+

@@ -132,3 +132,50 @@ def draw_hash_asl(perf, save_path=None, show=False):
         plt.show()
 
     plt.close()
+
+def draw_context_words(context_words, target_word, save_path=None, show=False):
+    words = [w for w, _ in context_words]
+    counts = [c for _, c in context_words]
+
+    plt.figure(figsize=(10, 6))
+    bars = plt.bar(words, counts)
+
+    plt.title(f"“{target_word}” 的上下文关联词统计")
+    plt.xlabel("上下文词语")
+    plt.ylabel("共现次数")
+    plt.xticks(rotation=45, ha="right")
+
+    _label_bar_values(bars)
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+
+    plt.close()
+
+def draw_sort_performance_curve(perf_data, metric="time", save_path=None, show=False):
+    """
+    metric: "time" 或 "comparisons"
+    """
+    plt.figure(figsize=(9, 6))
+
+    for algo, info in perf_data.items():
+        plt.plot(info["n"], info[metric], marker="o", label=algo)
+
+    ylabel = "运行时间 (ms)" if metric == "time" else "比较次数"
+
+    plt.title(f"排序算法性能变化趋势（{ylabel}）")
+    plt.xlabel("数据规模 N")
+    plt.ylabel(ylabel)
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=150)
+    if show:
+        plt.show()
+
+    plt.close()
