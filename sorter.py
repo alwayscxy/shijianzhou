@@ -1,142 +1,57 @@
-from pypinyin import lazy_pinyin
-
-
-def bubble_sort(nodes):  # 冒泡排序,可以优化
-    n = len(nodes)
-    result = nodes[:]
-
-    comparisons = 0
-    swaps = 0
+def bubble_sort(nodes):
+    arr = nodes[:]
+    n = len(arr)
+    cmp = 0  # 比较次数
 
     for i in range(n):
-        for j in range(n - i - 1):
-            comparisons += 1
-            if result[j].count < result[j + 1].count:
-                result[j], result[j + 1] = result[j + 1], result[j]
-                swaps += 1
-    return result, comparisons, swaps
+        for j in range(0, n - i - 1):
+            cmp += 1
+            if arr[j].count < arr[j + 1].count:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+
+    return arr, cmp
 
 
 def insertion_sort(nodes):
     arr = nodes[:]
-    n = len(arr)
-    comparisons = 0
-    moves = 0
-    for i in range(1, n):
-        current = arr[i]
+    cmp = 0
+
+    for i in range(1, len(arr)):
+        key = arr[i]
         j = i - 1
-        while j >= 0:
-            comparisons += 1
-            if arr[j].count < current.count:
-                arr[j + 1] = arr[j]
-                j -= 1
-                moves += 1
-            else:
-                break
-        arr[j + 1] = current
-        moves += 1
-    return arr, comparisons, moves
+        while j >= 0 and arr[j].count < key.count:
+            cmp += 1
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+
+    return arr, cmp
 
 
-def quick_sort(nodes):  # 快速排序
+def quick_sort(nodes):
     if len(nodes) <= 1:
-        return nodes, 0
-    pivot = nodes[0]  # 基准
-    comparisons = 0
+        return nodes[:], 0
+
+    pivot = nodes[len(nodes) // 2].count # 选择中间元素作为基准
     left = []
+    mid = []
     right = []
-
-    for x in nodes[1:]:
-        comparisons += 1
-        if x.count > pivot.count:
-            left.append(x)
-        else:
-            right.append(x)
-    sorted_left, left_cmp = quick_sort(left)
-    sorted_right, right_cmp = quick_sort(right)
-    total_cmp = comparisons + left_cmp + right_cmp
-    return sorted_left + [pivot] + sorted_right, total_cmp
-
-
-def quick_sort_dutch_flag(nodes):  # 快速排序（三色旗）
-    if len(nodes) <= 1:
-        return nodes, 0
-
-    pivot = nodes[0]
-    high = []  # count > pivot
-    equal = []  # count == pivot
-    low = []  # count < pivot
-
-    comparisons = 0
+    cmp = 0
 
     for node in nodes:
-        comparisons += 1
-        if node.count > pivot.count:
-            high.append(node)
-        elif node.count < pivot.count:
-            low.append(node)
+        cmp += 1
+        if node.count > pivot:
+            left.append(node)
+        elif node.count < pivot:
+            right.append(node)
         else:
-            equal.append(node)
+            mid.append(node)
 
-    sorted_high, cmp_high = quick_sort_dutch_flag(high)
-    sorted_low, cmp_low = quick_sort_dutch_flag(low)
+    sorted_left, cmp_l = quick_sort(left)
+    sorted_right, cmp_r = quick_sort(right)
 
-    total_cmp = comparisons + cmp_high + cmp_low
-
-    return sorted_high + equal + sorted_low, total_cmp
+    return sorted_left + mid + sorted_right, cmp + cmp_l + cmp_r
 
 
-def sort_by_word_length(nodes, reverse=True):  # 按单词长度排序
-    sorted_nodes = sorted(
-        nodes,
-        key=lambda node: len(node.word),
-        reverse=reverse
-    )
-    return sorted_nodes
-
-
-def sort_by_freq_then_length(nodes):  # 按词频和长度排序
-    return sorted(
-        nodes,
-        key=lambda node: (node.count, len(node.word)),
-        reverse=True
-    )
-
-
-def sort_by_freq_then_alpha(nodes):
-    """
-    按词频（降序） + 英文单词字典序（升序）进行二级排序
-    非英文单词统一排在后面
-    """
-
-    def is_english_word(word):
-        # 严格判断：所有字符都是 a-z
-        return word.isascii() and word.isalpha()
-
-    def sort_key(node):
-        if is_english_word(node.word):
-            return (-node.count, 0, node.word)
-        else:
-            # 非英文词统一排后
-            return (-node.count, 1, node.word)
-
-    return sorted(nodes, key=sort_key)
-
-
-def sort_by_freq_then_pinyin(nodes):  # 按词频和拼音首字母排序
-    def is_chinese_word(word):
-        return any('\u4e00' <= ch <= '\u9fff' for ch in word)
-
-    def get_pinyin_initial(word):
-        # 取第一个汉字的拼音首字母
-        py = lazy_pinyin(word[0])
-        return py[0][0] if py else '{'
-
-    def sort_key(node):
-        if is_chinese_word(node.word):
-            return (-node.count, 0, get_pinyin_initial(node.word))
-        else:
-            # 非中文词排后
-            return (-node.count, 1, node.word)
-
-    return sorted(nodes, key=sort_key)
+def quick_sort_dutch_flag(nodes):  # 与 quick_sort 行为一致，保留接口，之前普通的快速排序递归爆栈了，所以直接用三色旗版本
+    return quick_sort(nodes)

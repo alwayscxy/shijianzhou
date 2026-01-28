@@ -1,13 +1,13 @@
 import tkinter as tk
+from gui.layout import MainLayout
 
 
 def main():
     root = tk.Tk()
     root.title("文本词频统计系统")
-    root.geometry("800x600")
+    root.geometry("1100x650")
 
-    label = tk.Label(root, text="欢迎使用文本词频统计系统", font=("微软雅黑", 16))
-    label.pack(pady=20)
+    MainLayout(root)
 
     root.mainloop()
 
